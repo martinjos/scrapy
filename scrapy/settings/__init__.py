@@ -86,6 +86,15 @@ class CrawlerSettings(Settings):
     def __str__(self):
         return "<CrawlerSettings module=%r>" % self.settings_module
 
+# global_settings:  In order for users' site security policies to be
+# respected, crawlers should never replace or modify this object.
+#
+# In particular, it is a bad idea to replace it with a subclass, because at
+# some point the subclass may be modified in such a way that its __getitem__
+# method no longer respects the special properties of "SITE_*" settings.
+#
+global_settings = Settings()
+
 
 # Settings beginning with "SITE_" can only be set in the user config file
 # (e.g. $HOME/.config/scrapy/user_settings.py).  This is a security feature.
