@@ -14,6 +14,7 @@ from scrapy.utils.misc import load_object
 from scrapy.utils.txweb import JsonResource as JsonResource_
 from scrapy.utils.reactor import listen_tcp
 from scrapy.utils.conf import build_component_list
+from scrapy.utils.security import apply_security_policy
 
 
 class JsonResource(JsonResource_):
@@ -64,13 +65,22 @@ class RootResource(JsonResource):
 
 class WebService(server.Site):
 
+    LOCAL_WARNING = ("Anyone who has a user account on your system will have full control over\n"
+                     "your crawler.")
+    REMOTE_WARNING = ("Depending on your Internet setup, this could give an attacker full control\n"
+                      "over your crawler - which may give them a back door into your system if\n"
+                      "there are any security flaws in the crawler.")
+
     def __init__(self, crawler):
         if not crawler.settings.getbool('WEBSERVICE_ENABLED'):
             raise NotConfigured
+        self.host = crawler.settings['WEBSERVICE_HOST']
         self.crawler = crawler
+        apply_security_policy("web service", "WEBSERVICE", self.host,
+                              WebService.LOCAL_WARNING, WebService.REMOTE_WARNING)
+
         logfile = crawler.settings['WEBSERVICE_LOGFILE']
         self.portrange = [int(x) for x in crawler.settings.getlist('WEBSERVICE_PORT')]
-        self.host = crawler.settings['WEBSERVICE_HOST']
         root = RootResource(crawler)
         reslist = build_component_list(crawler.settings['WEBSERVICE_RESOURCES_BASE'], \
             crawler.settings['WEBSERVICE_RESOURCES'])

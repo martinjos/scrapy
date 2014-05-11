@@ -236,6 +236,14 @@ TELNETCONSOLE_ENABLED = 1
 TELNETCONSOLE_PORT = [6023, 6073]
 TELNETCONSOLE_HOST = '127.0.0.1'
 
+# N.B.: magic 'SITE_*' settings can only be overridden within
+# user config file (e.g. $HOME/.config/scrapy/user_settings.py).
+# These vars are specifically designed to allow the user to override
+# the normal behaviour of a crawler - which is why we don't allow
+# crawlers to override them.
+SITE_TELNETCONSOLE_ALLOW_LOCAL = 1   # 0 = never run, 1 = ask (i.e. prompt user), 2 = always run
+SITE_TELNETCONSOLE_ALLOW_REMOTE = 0  # LOCAL = only 127.0.0.1, REMOTE = any address, including 0.0.0.0
+
 WEBSERVICE_ENABLED = True
 WEBSERVICE_LOGFILE = None
 WEBSERVICE_PORT = [6080, 7030]
@@ -246,6 +254,9 @@ WEBSERVICE_RESOURCES_BASE = {
     'scrapy.contrib.webservice.enginestatus.EngineStatusResource': 1,
     'scrapy.contrib.webservice.stats.StatsResource': 1,
 }
+
+SITE_WEBSERVICE_ALLOW_LOCAL = 1   # ask user (see explanations for SITE_TELNETCONSOLE_*)
+SITE_WEBSERVICE_ALLOW_REMOTE = 0  # never run
 
 SPIDER_CONTRACTS = {}
 SPIDER_CONTRACTS_BASE = {

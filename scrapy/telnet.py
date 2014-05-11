@@ -15,6 +15,7 @@ from scrapy import log, signals
 from scrapy.utils.trackref import print_live_refs
 from scrapy.utils.engine import print_engine_status
 from scrapy.utils.reactor import listen_tcp
+from scrapy.utils.security import apply_security_policy
 
 try:
     import guppy
@@ -29,13 +30,21 @@ update_telnet_vars = object()
 
 class TelnetConsole(protocol.ServerFactory):
 
+    LOCAL_WARNING = ("This will give everybody who has a user account on your system full\n"
+                     "access to your user account (while the crawler is running).")
+    REMOTE_WARNING = ("THIS CAN ALLOW AN ATTACKER TO TAKE FULL CONTROL OF YOUR SYSTEM\n"
+                      "(under certain fairly common conditions).")
+
     def __init__(self, crawler):
         if not crawler.settings.getbool('TELNETCONSOLE_ENABLED'):
             raise NotConfigured
+        self.host = crawler.settings['TELNETCONSOLE_HOST']
         self.crawler = crawler
+        apply_security_policy("telnet server", "TELNETCONSOLE", self.host,
+                                   TelnetConsole.LOCAL_WARNING, TelnetConsole.REMOTE_WARNING)
+
         self.noisy = False
         self.portrange = [int(x) for x in crawler.settings.getlist('TELNETCONSOLE_PORT')]
-        self.host = crawler.settings['TELNETCONSOLE_HOST']
         self.crawler.signals.connect(self.start_listening, signals.engine_started)
         self.crawler.signals.connect(self.stop_listening, signals.engine_stopped)
 
