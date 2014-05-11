@@ -18,6 +18,9 @@ The web service is a :ref:`built-in Scrapy extension <topics-extensions-ref>`
 which comes enabled by default, but you can also disable it if you're running
 tight on memory.
 
+Please note that for security reasons, the web service will not run as a
+privileged (i.e. administrative or root) user.
+
 .. _topics-webservice-resources:
 
 Web service resources
@@ -169,6 +172,41 @@ The list of web service resources available by default in Scrapy. You shouldn't
 change this setting in your project, change :setting:`WEBSERVICE_RESOURCES`
 instead. If you want to disable some resource set its value to ``None`` in
 :setting:`WEBSERVICE_RESOURCES`.
+
+.. setting:: SITE_WEBSERVICE_ALLOW_LOCAL
+
+SITE_WEBSERVICE_ALLOW_LOCAL
+---------------------------
+
+Default: ``1`` (the user will be prompted)
+
+A :ref:`SITE setting <topics-settings-site_settings>` that allows the user to
+prevent a crawler from starting a web service on the local interface. For the
+rationale, see :ref:`SITE settings <topics-settings-site_settings>`.
+
++-------+------------------------------------------------------------------------+
+| Value | Behaviour                                                              |
++=======+========================================================================+
+| 0     | The server will not run.                                               |
++-------+------------------------------------------------------------------------+
+| 1     | The user will be prompted to confirm that they want the server to run. |
++-------+------------------------------------------------------------------------+
+| 2     | The server will run.                                                   |
++-------+------------------------------------------------------------------------+
+
+.. setting:: SITE_WEBSERVICE_ALLOW_REMOTE
+
+SITE_WEBSERVICE_ALLOW_REMOTE
+----------------------------
+
+Default: ``0`` (the server will not run)
+
+A :ref:`SITE setting <topics-settings-site_settings>` that allows the user to
+prevent a crawler from starting a web service on an external interface. For
+the rationale, see :ref:`SITE settings <topics-settings-site_settings>`.
+
+The possible values are the same as for
+:setting:`SITE_WEBSERVICE_ALLOW_LOCAL`.
 
 Writing a web service resource
 ==============================

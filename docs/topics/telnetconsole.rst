@@ -16,6 +16,9 @@ The telnet console is a :ref:`built-in Scrapy extension
 disable it if you want. For more information about the extension itself see
 :ref:`topics-extensions-ref-telnetconsole`.
 
+Please note that for security reasons, the telnet console will not run as a
+privileged (i.e. administrative or root) user.
+
 .. highlight:: none
 
 How to access the telnet console
@@ -159,4 +162,39 @@ TELNETCONSOLE_HOST
 Default: ``'127.0.0.1'``
 
 The interface the telnet console should listen on
+
+.. setting:: SITE_TELNETCONSOLE_ALLOW_LOCAL
+
+SITE_TELNETCONSOLE_ALLOW_LOCAL
+------------------------------
+
+Default: ``1`` (the user will be prompted)
+
+A :ref:`SITE setting <topics-settings-site_settings>` that allows the user to
+prevent a crawler from starting a telnet server on the local interface. For the
+rationale, see :ref:`SITE settings <topics-settings-site_settings>`.
+
++-------+------------------------------------------------------------------------+
+| Value | Behaviour                                                              |
++=======+========================================================================+
+| 0     | The server will not run.                                               |
++-------+------------------------------------------------------------------------+
+| 1     | The user will be prompted to confirm that they want the server to run. |
++-------+------------------------------------------------------------------------+
+| 2     | The server will run.                                                   |
++-------+------------------------------------------------------------------------+
+
+.. setting:: SITE_TELNETCONSOLE_ALLOW_REMOTE
+
+SITE_TELNETCONSOLE_ALLOW_REMOTE
+-------------------------------
+
+Default: ``0`` (the server will not run)
+
+A :ref:`SITE setting <topics-settings-site_settings>` that allows the user to
+prevent a crawler from starting a telnet server on an external interface. For
+the rationale, see :ref:`SITE settings <topics-settings-site_settings>`.
+
+The possible values are the same as for
+:setting:`SITE_TELNETCONSOLE_ALLOW_LOCAL`.
 

@@ -38,7 +38,8 @@ precedence:
  1. Global overrides (most precedence)
  2. Project settings module
  3. Default settings per-command
- 4. Default global settings (less precedence)
+ 4. User settings
+ 5. Default global settings (less precedence)
 
 These mechanisms are described in more detail below.
 
@@ -73,7 +74,18 @@ settings, which override the global default settings. Those custom command
 settings are specified in the ``default_settings`` attribute of the command
 class.
 
-4. Default global settings
+4. User settings
+----------------
+
+The user_settings.py config file is located in the scrapy user configuration
+directory. In Linux, this is `~/.config/scrapy`; on Windows it is something like
+`%APPDATA%\\scrapy\\scrapy`; and on Mac OS X it is
+`~/Library/Application Support/scrapy`.
+
+This file is loaded for every crawler, but (apart from SITE settings), the
+settings will not override crawler-specific settings.
+
+5. Default global settings
 --------------------------
 
 The global defaults are located in the ``scrapy.settings.default_settings``
@@ -108,6 +120,28 @@ Setting names are usually prefixed with the component that they configure. For
 example, proper setting names for a fictional robots.txt extension would be
 ``ROBOTSTXT_ENABLED``, ``ROBOTSTXT_OBEY``, ``ROBOTSTXT_CACHEDIR``, etc.
 
+.. _topics-settings-site_settings:
+
+SITE settings
+=============
+
+Any setting whose name begins with the 5 characters "SITE\_" is automatically
+treated in a special way. Specifically, it can not be overridden by a crawler
+that uses the standard implementation of CrawlerSettings. In addition, an
+object ``scrapy.settings.global_settings`` (of type Settings) is available,
+which will always contain only user settings (from `user_settings.py`) and
+default global settings, ensuring that SITE settings (indeed, any
+settings) cannot be overridden, even by a crawler that uses a non-standard
+subclass of Settings.
+
+This is mainly useful for enforcing site-specific security policies. The
+problem that this seeks to address is that different users have different
+security needs, and therefore different perceptions of what it is safe for a
+crawler to do. Some users, particularly of open-source operating systems, do
+not run a personal firewall, and may work in public Wi-Fi hotspots, assuming
+that the software they run is safe to use in such a context. In addition, some
+people work on systems that are shared between many users, such as some
+University systems, where even a local connection may be untrusted.
 
 .. _topics-settings-ref:
 
