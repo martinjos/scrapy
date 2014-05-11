@@ -1,5 +1,19 @@
+import sys, os
 import json
+import appdirs
 from . import default_settings
+
+# load user_settings package (if it exists)
+user_settings = None
+user_conf_dir = appdirs.user_config_dir("scrapy")
+user_conf_file = os.path.join(user_conf_dir, "user_settings.py")
+if os.access(user_conf_file, os.R_OK):
+    sys.path.insert(0, user_conf_dir)
+    try:
+        import user_settings
+    except ImportError:
+        pass
+    del sys.path[0]
 
 
 class Settings(object):
@@ -7,10 +21,13 @@ class Settings(object):
     def __init__(self, values=None):
         self.values = values.copy() if values else {}
         self.global_defaults = default_settings
+        self.user_settings = user_settings
 
     def __getitem__(self, opt_name):
-        if opt_name in self.values:
+        if opt_name in self.values and not setting_is_site_only(opt_name):
             return self.values[opt_name]
+        if self.user_settings and hasattr(self.user_settings, opt_name):
+            return getattr(self.user_settings, opt_name)
         return getattr(self.global_defaults, opt_name, None)
 
     def get(self, name, default=None):
@@ -57,17 +74,23 @@ class CrawlerSettings(Settings):
         self.defaults = {}
 
     def __getitem__(self, opt_name):
-        if opt_name in self.overrides:
-            return self.overrides[opt_name]
-        if self.settings_module and hasattr(self.settings_module, opt_name):
-            return getattr(self.settings_module, opt_name)
-        if opt_name in self.defaults:
-            return self.defaults[opt_name]
+        if not setting_is_site_only(opt_name):
+            if opt_name in self.overrides:
+                return self.overrides[opt_name]
+            if self.settings_module and hasattr(self.settings_module, opt_name):
+                return getattr(self.settings_module, opt_name)
+            if opt_name in self.defaults:
+                return self.defaults[opt_name]
         return super(CrawlerSettings, self).__getitem__(opt_name)
 
     def __str__(self):
         return "<CrawlerSettings module=%r>" % self.settings_module
 
+
+# Settings beginning with "SITE_" can only be set in the user config file
+# (e.g. $HOME/.config/scrapy/user_settings.py).  This is a security feature.
+def setting_is_site_only(setting_name):
+    return setting_name[0:5] == "SITE_"
 
 def iter_default_settings():
     """Return the default settings as an iterator of (name, value) tuples"""
